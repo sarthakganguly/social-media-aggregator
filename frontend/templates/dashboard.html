@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Welcome to the Dashboard, {{ username }}!</h1>
+    
+    <hr>
+
+	<h2>Create a New Post</h2>
+	<form method="POST" action="">
+	    <div>
+	        <label for="content">Post Content:</label><br>
+	        <textarea name="content" rows="4" cols="50" required></textarea>
+	    </div>
+	    <br>
+	    <div>
+	        <label for="schedule_time">Schedule for later (optional):</label><br>
+	        <input type="datetime-local" name="schedule_time">
+	    </div>
+	    <br>
+	    <div>
+	        <p>Post to:</p>
+	        <input type="hidden" name="platform" value="linkedin">
+        	<button type="submit">Submit Post</button>
+	    </div>
+	</form>
+    <hr>
+
+    <h2>Connected Channels</h2>
+    {% if channels %}
+        <ul>
+        {% for channel in channels %}
+            <li>{{ channel.platform | capitalize }}: Connected</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No channels connected yet.</p>
+    {% endif %}
+    <p><a href="{{ linkedin_auth_url }}">Connect LinkedIn</a></p>
+
+{% endblock %}
