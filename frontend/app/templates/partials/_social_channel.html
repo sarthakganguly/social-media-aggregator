@@ -1,0 +1,25 @@
+<div class="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between border border-gray-200">
+    <div class="flex items-center">
+        <img src="{{ url_for('static', path=channel.icon_path) }}" alt="{{ channel.name }} logo" class="h-8 w-8">
+        <span class="ml-4 font-semibold text-gray-700">{{ channel.name }}</span>
+    </div>
+
+    {% if channel.connected %}
+        <form action="/auth/disconnect" method="post">
+            <input type="hidden" name="provider" value="{{ channel.provider }}">
+            <button type="submit" class="bg-red-500 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                Disconnect
+            </button>
+        </form>
+    {% else %}
+        {% if channel.provider == 'linkedin' %}
+            <a href="/auth/linkedin/start" class="bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Connect
+            </a>
+        {% else %}
+            <button class="bg-gray-200 text-gray-800 text-sm font-medium py-2 px-4 rounded-md hover:bg-gray-300" disabled>
+                Connect
+            </button>
+        {% endif %}
+    {% endif %}
+</div>

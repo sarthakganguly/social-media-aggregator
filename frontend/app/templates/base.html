@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Social Media Aggregator{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 flex flex-col min-h-screen text-gray-800">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div>
+                    <a href="{{ '/dashboard' if current_user else '/' }}" class="text-xl font-bold text-gray-800">
+                        Social Aggregator
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    {% if current_user %}
+                        <a href="/dashboard" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="/drafts" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Drafts</a>
+                        <a href="/history" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">History</a>
+                        <div class="w-px h-6 bg-gray-300 mx-3"></div>
+                        <span class="text-gray-600 text-sm mr-4">Welcome, <strong class="font-medium">{{ current_user.username }}</strong></span>
+                        <form action="/logout" method="post">
+                            <button type="submit" class="bg-red-500 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="/login" class="text-gray-800 text-sm font-medium hover:text-blue-600 mr-4">Sign In</a>
+                        <a href="/register" class="bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="text-center py-4 text-slate-500 text-sm">
+        <p>Copyright © Social Media Aggregator {{ now().year }}.</p>
+    </footer>
+
+    <!-- JavaScript for dynamic alerts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alertBox = document.getElementById('toast-alert');
+            if (alertBox) {
+                // Auto-close after 5 seconds
+                const autoCloseTimeout = setTimeout(() => {
+                    closeAlert();
+                }, 5000);
+
+                const closeButton = alertBox.querySelector('[data-dismiss-target]');
+                
+                const closeAlert = () => {
+                    // Start fade out
+                    alertBox.classList.add('opacity-0');
+                    // Clear the auto-close timeout if user clicks manually
+                    clearTimeout(autoCloseTimeout);
+                    // Remove the element after the transition ends
+                    setTimeout(() => {
+                        alertBox.remove();
+                    }, 500); // This duration should match the CSS transition duration
+                };
+
+                if (closeButton) {
+                    closeButton.addEventListener('click', closeAlert);
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
