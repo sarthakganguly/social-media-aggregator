@@ -7,14 +7,20 @@ class SocialAccount(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    provider = Column(String, nullable=False)  # e.g., 'linkedin'
-    provider_user_id = Column(String, nullable=False, unique=True)
-    access_token = Column(String, nullable=False) # In production, this should be encrypted
-    # refresh_token = Column(String, nullable=True) # For long-term access
+    
+    provider = Column(String(50), nullable=False)
+    
+    # --- THIS IS THE FIX ---
+    # Increased the length from the default to 255 to ensure
+    # the full URN (e.g., "urn:li:person:y3p7QW4Is_") can be stored without truncation.
+    provider_user_id = Column(String(255), nullable=False, unique=True)
+    
+    # Increased length for potentially long access tokens
+    access_token = Column(String(1024), nullable=False)
+    
     expires_at = Column(DateTime, nullable=True)
     
     owner = relationship("User", back_populates="social_accounts")
 
-# Add the relationship to the User model
 from .user import User
 User.social_accounts = relationship("SocialAccount", back_populates="owner", cascade="all, delete-orphan")

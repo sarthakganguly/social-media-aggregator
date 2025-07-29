@@ -18,6 +18,6 @@ class Settings:
     LINKEDIN_CLIENT_ID: str = os.getenv("LINKEDIN_CLIENT_ID")
     LINKEDIN_CLIENT_SECRET: str = os.getenv("LINKEDIN_CLIENT_SECRET")
     LINKEDIN_REDIRECT_URI: str = os.getenv("LINKEDIN_REDIRECT_URI")
-
+    LINKEDIN_SCOPE: str = os.getenv("LINKEDIN_SCOPE")
 
 settings = Settings()

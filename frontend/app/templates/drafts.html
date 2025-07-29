@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Drafts{% endblock %}
@@ -7,69 +8,48 @@
     <div class="bg-white p-6 rounded-lg shadow-md">
         <h1 class="text-3xl font-bold text-gray-800 mb-6">Draft Posts</h1>
         
-        <!-- Search and Filter Bar -->
-        <div class="flex items-center justify-between mb-6">
-            <div class="relative w-full max-w-md">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <input type="text" placeholder="Search drafts..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            </div>
+        {% if msg or error %}
+        <div id="toast-alert" class="fixed top-5 right-5 flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-gray-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow transition-opacity duration-500" role="alert">
+            <div class="text-sm font-normal">{% if msg %}{{ msg }}{% elif error %}{{ error }}{% endif %}</div>
+            <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100" data-dismiss-target aria-label="Close">
+                <span class="sr-only">Close</span>
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+            </button>
         </div>
+        {% endif %}
 
-        <!-- Drafts Table -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date <button>↕</button>
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Channels</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Created</th>
                         <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- Example Row 1 -->
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">This is a draft post about the future of AI. #AI #Tech</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">2025-08-15</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center space-x-2">
-                                <span title="Twitter / X" class="text-gray-600">X</span>
-                                <span title="LinkedIn" class="text-blue-700">LI</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <button class="text-indigo-600 hover:text-indigo-900">Schedule</button>
-                            <button class="text-red-600 hover:text-red-900">Delete</button>
-                        </td>
-                    </tr>
-                    <!-- Example Row 2 -->
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">Don't forget our upcoming product launch next week!</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">2025-08-12</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center space-x-2">
-                                <span title="Facebook" class="text-blue-800">FB</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <button class="text-indigo-600 hover:text-indigo-900">Schedule</button>
-                            <button class="text-red-600 hover:text-red-900">Delete</button>
-                        </td>
-                    </tr>
+                    {% if drafts %}
+                        {% for draft in drafts %}
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">{{ draft.content[:100] }}{% if draft.content|length > 100 %}...{% endif %}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">{{ draft.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                <form action="/drafts/{{ draft.id }}/delete" method="post" class="inline">
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="px-6 py-4 text-center text-gray-500">You have no saved drafts.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
