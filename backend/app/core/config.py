@@ -20,4 +20,8 @@ class Settings:
     LINKEDIN_REDIRECT_URI: str = os.getenv("LINKEDIN_REDIRECT_URI")
     LINKEDIN_SCOPE: str = os.getenv("LINKEDIN_SCOPE")
 
+    # X (Twitter) Settings
+    X_CLIENT_ID: str = os.getenv("X_CLIENT_ID")
+    X_CLIENT_SECRET: str = os.getenv("X_CLIENT_SECRET")
+
 settings = Settings()

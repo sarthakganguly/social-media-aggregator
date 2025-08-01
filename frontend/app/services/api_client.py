@@ -50,6 +50,20 @@ async def connect_linkedin_account(token: str, code: str) -> Tuple[bool, str]:
         else:
             return False, response.json().get("detail", "Failed to connect LinkedIn account.")
 
+async def connect_twitter_account(token: str, code: str, code_verifier: str) -> Tuple[bool, str]:
+    headers = {"Authorization": token}
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{API_BASE_URL}/twitter/connect",
+            json={"code": code, "code_verifier": code_verifier},
+            headers=headers
+        )
+        if response.status_code == 200:
+            return True, "Successfully connected X (Twitter) account."
+        else:
+            detail = response.json().get("detail", "Failed to connect X account.")
+            return False, detail
+
 async def disconnect_social_account(token: str, provider: str) -> Tuple[bool, str]:
     headers = {"Authorization": token}
     async with httpx.AsyncClient() as client:

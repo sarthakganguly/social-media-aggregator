@@ -12,9 +12,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks: # Add to network
+      - app_net
 
   redis:
     image: redis:6-alpine
+    networks: # Add to network
+      - app_net
 
   backend:
     build: ./backend
@@ -22,7 +26,6 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      # Expose on 8001 for development API access, e.g., viewing /docs
       - "8001:8000"
     env_file:
       - ./.env
@@ -31,6 +34,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    networks: # This was missing
+      - app_net
 
   frontend:
     build: ./frontend
@@ -38,12 +43,18 @@ services:
     volumes:
       - ./frontend:/app
     ports:
-      # User-facing application port
       - "8000:8000"
     env_file:
       - ./.env
     depends_on:
       - backend
+    networks: # Add to network
+      - app_net
+
+# Define the shared network
+networks:
+  app_net:
+    driver: bridge
 
 volumes:
   postgres_data:

@@ -5,7 +5,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from datetime import datetime
 from typing import Optional, List
 import os
-import secrets  
+import secrets
+import hashlib  
+import base64   
 
 from .dependencies import get_current_user_from_cookie
 from .services import api_client
@@ -163,3 +165,47 @@ async def handle_delete_draft(request: Request, post_id: int):
 async def history_page(request: Request, context: dict = Depends(user_to_context)):
     if not context.get("current_user"): return RedirectResponse(url="/login?error=Please log in", status_code=307)
     return templates.TemplateResponse("history.html", {"request": request, **context})
+
+@app.get("/auth/twitter/start")
+async def start_twitter_oauth():
+    state = secrets.token_hex(16)
+    # PKCE Code Verifier and Challenge
+    code_verifier = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b'=').decode('utf-8')
+    code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode('utf-8')).digest()).rstrip(b'=').decode('utf-8')
+
+    client_id = os.getenv("X_CLIENT_ID")
+    redirect_uri = os.getenv("LINKEDIN_REDIRECT_URI").replace("linkedin", "twitter") # Reuse and replace
+    scopes = os.getenv("X_SCOPES")
+
+    twitter_auth_url = (
+        f"https://twitter.com/i/oauth2/authorize?response_type=code"
+        f"&client_id={client_id}&redirect_uri={redirect_uri}&scope={scopes}"
+        f"&state={state}&code_challenge={code_challenge}&code_challenge_method=S256"
+    )
+
+    response = RedirectResponse(url=twitter_auth_url)
+    response.set_cookie(key="twitter_oauth_state", value=state, httponly=True)
+    response.set_cookie(key="twitter_code_verifier", value=code_verifier, httponly=True)
+    return response
+
+@app.get("/auth/twitter/callback")
+async def handle_twitter_callback(request: Request):
+    error = request.query_params.get("error")
+    if error:
+        return RedirectResponse(url=f"/dashboard?error={error}", status_code=303)
+
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+    stored_state = request.cookies.get("twitter_oauth_state")
+    code_verifier = request.cookies.get("twitter_code_verifier")
+    
+    if not state or state != stored_state:
+        return RedirectResponse(url="/dashboard?error=Invalid state.", status_code=303)
+
+    token = request.cookies.get("access_token")
+    success, detail = await api_client.connect_twitter_account(token, code, code_verifier)
+
+    if success:
+        return RedirectResponse(url=f"/dashboard?msg={detail}", status_code=303)
+    else:
+        return RedirectResponse(url=f"/dashboard?error={detail}", status_code=303)

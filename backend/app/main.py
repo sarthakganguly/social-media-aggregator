@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import auth, users, linkedin, posts
+from app.api.routes import auth, users, linkedin, posts, twitter
 from app.db.session import engine
 from app.models import user, social_account, post
 
@@ -12,6 +12,7 @@ app = FastAPI(title="Social Media Aggregator - Backend API", version="1.0")
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(linkedin.router, prefix="/api/linkedin", tags=["linkedin"])
+app.include_router(twitter.router, prefix="/api/twitter", tags=["twitter"]) 
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 
 @app.get("/api/health")

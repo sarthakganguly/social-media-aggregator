@@ -9,6 +9,8 @@ from app.models.post import Post, PostStatus
 from app.schemas.post import PostCreate, PostInDB
 from app.dependencies import get_current_user_required
 from app.worker.tasks import publish_to_linkedin
+from app.worker.tasks import publish_to_linkedin, publish_to_twitter
+
 
 router = APIRouter()
 
@@ -46,7 +48,9 @@ def create_post(
     if action == "post_now" and post_data.channels:
         if "linkedin" in post_data.channels:
             publish_to_linkedin.delay(new_post.id)
-    
+        if "twitter" in post_data.channels:
+            publish_to_twitter.delay(new_post.id)
+
     return new_post
 
 @router.get("/drafts", response_model=List[PostInDB])
